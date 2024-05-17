@@ -295,8 +295,8 @@ services:
     volumes:
       - minio_storage:/data
     environment:
-      MINIO_ACCESS_KEY: minio_admin
-      MINIO_SECRET_KEY: minio_password
+      MINIO_ACCESS_KEY: ${INIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
     command: server /data --console-address ":9090" 
     restart: always
 
