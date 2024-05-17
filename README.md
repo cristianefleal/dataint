@@ -1,19 +1,11 @@
 # Documentação do Projeto
 
-Este repositório contém o projeto da disciplina de DataOps.
+Este repositório contém o projeto da disciplina de Data Integration.
 
 Os seguintes serviços são instalados pelo Docker compose:
 
-- Suite Airflow
-    - Webserver
-    - Worker
-    - Schedule
-    - Postgres
-    - Redis
-    - Triggerer
-
-- Destino dos dados tratados
-    - MySQL
+- Airflow
+- MinIO
 
 ## Pré-requisitos
 
@@ -41,7 +33,7 @@ Requisitos mínimos de memória
 3. Execute o seguinte comando:
 
     ```
-    git clone https://github.com/cristianefleal/dataops.git
+    git clone https://github.com/cristianefleal/dataint.git
     ```
 
 ### Configurar e executar o docker compose
@@ -49,7 +41,7 @@ Requisitos mínimos de memória
 1. Navegue até o diretório raiz do projeto após clonar o repositório:
 
     ```
-    cd dataops
+    cd dataint
     ```
 2. Crie um arquivo .env de acordo com a estrutura de .env.local:
 
@@ -60,15 +52,10 @@ Requisitos mínimos de memória
 
     ```
     AIRFLOW_UID=${AIRFLOW_UID}
-    MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-    MYSQL_DATABASE=${MYSQL_DATABASE}
-    MYSQL_USER=${MYSQL_USER}
-    MYSQL_PASSWORD=${MYSQL_PASSWORD}
     POSTGRES_USER=${POSTGRES_USER}
     POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     POSTGRES_DB=${POSTGRES_DB}
-    URL=${URL}
-    _PIP_ADDITIONAL_REQUIREMENTS=openpyxl
+
     ```
 
 4. Execute o seguinte comando para inicializar os serviços:
@@ -77,27 +64,6 @@ Requisitos mínimos de memória
     docker compose up -d
     ```
 
-5. Buscar o IP do container do Mysql, para que seja configurada a conexão no Airflow
-
-    ```
-    docker  ps
-
-    docker inspect <container_id_mysql> | grep IPAddress
-    ```
-
-
 ### Acessar o airflow
 
 6. Após iniciar todos os serviços a aplicação pode ser acessada através do endereço: http://localhost:8080
-
-7. Crie uma conexão para o Mysql em Admin/Conections
-
-![Alt text](images/airflow1.png?raw=true "Title")
-
-8. No campo Host informe o IP do Mysql (passo 5), assim como connection_id (mysql_con), Login e Password configurados no .env
-
-![Alt text](images/airflow2.png?raw=true "Title")
-
-9. No menu DAGS, executar a dag de04-dataops
-
-![Alt text](images/airflow3.png?raw=true "Title")
