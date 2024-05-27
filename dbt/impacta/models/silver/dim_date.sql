@@ -1,3 +1,9 @@
+{{
+  config(
+    schema='silver',
+  )
+}}
+
 WITH RECURSIVE dates_cte AS (
     SELECT '2023-01-01'::DATE AS full_date
     UNION ALL
