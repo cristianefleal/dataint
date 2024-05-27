@@ -102,18 +102,25 @@
 
 ## Executar DAG 1_copy_cvs_to_s3
 
-1. Acessar o Airflow através da URL: `http://localhost:8080/home`
-2. Informar as credenciais fornecidas acima
-3. Criar a conexão com o MinIO:
-    - Abrir o terminal para recuperar o IP interno do serviço minio.
+0. Encontrar os IPs internos do serviços s3_minio e postgres_stage 
     - Executar docker ps, identificar o container_id do serviço e depois:
         ```
         docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
         ```
+1. Acessar o Airflow através da URL: `http://localhost:8080/home`
+2. Informar as credenciais fornecidas acima
+
+    - Abrir o terminal para recuperar o IP interno do serviço minio.
+
+3. Criar a conexão com o MinIO:
     - Abrir o Menu: Admin/Connections.
     - Criar uma nova conexão:
-        - Name:
-        - Type:
+        - **Connection Id:** `aws_default`
+        - **Connection Type:** `Amazon Web Services`
+        - **AWS Access Key ID:** `minio_admin`
+        - **AWS Secret Access Key:** `minio_password`
+        - **Extra:** `{"aws_acess_key_id":"minio_admin","aws_secret_access_key":"minio_password","endpoint_url":"http://<IP INTERNO>:9000"}`
+        - **Save**
 4. Executar DAG 1_copy_cvs_to_s3
 
 ## Configuração do Airbyte
@@ -121,101 +128,88 @@
 2. Fornecer as credenciais:
 2. Em Sources (*menu esquerdo*), busque e selecione S3. 
 3. Configuração:
-    - **Source_name:** `S3`
-    - **Output_stream_name:** `dauly_coffeeshop`
-    - **Pattern_of_files_to_replicate:** `coffeeshopsales.csv`
+    - **Source name:** `S3`
     - **Bucket:** `tmp`
-    - **Aws_access_key_id:** `minio_admin`
-    - **Aws_secret_access_key:** `minio_password`
-    - **Path_prefix:** `customer/`
+    - Abrir seção **The list of streams to sync**
+    - **Format:** `CSV Format`
+    - **Delimiter:** `;`
+    - **Name:** `raw_coffeeshop`
+    - Abrir **Optional fields**
+    - **Globs:** `coffeeshopsales.csv`
+    - **Aws Access Key ID:** `minio_admin`
+    - **Aws Secret Access Key:** `minio_password`
     - **Endpoint:** `http://<IP_INTERNO_CONTAINER>:9000`
-    - ***Selecione `set up source`***
+    - Selecione ***`set up source`***
 5. Em Destinations (*menu esquerdo*), busque e selecione Postgres.
 6. Configuração Postgres Stage:
-    - **Destination_name:** `Postgres_Stage`
-    - **Host: (IP interno)** `localhost`
-    - **Port:** `5453`
-    - **Db_name:** `impacta`
-    - **Default_Schema**: `airbyte`
-    - **user:** `impacta`
-    - **password:** `impacta`
-    - ***Selecione `set up destination`***
-7. Crie um novo destino e configure o Postgres Prod.
-8. Configuração:
-    - **Destination_name:** `Postgres_Prod`
-    - **Host: (IP interno)** `localhost`
-    - **Port:** `5453`
-    - **Db_name:** `impacta`
-    - **Default_Schema**: `public`
-    - **user:** `impacta`
-    - **password:** `impacta`
-    - ***Selecione `set up destination`***
+    - **Destination name:** `Postgres_Stage`
+    - **Host: (IP interno)** `<IP interno>`
+    - **Port:** `5452`
+    - **DB Name:** `dbstage`
+    - **Default Schema**: `airbyte`
+    - **User:** `impacta`
+    - **Password:** `impacta`
+    - Selecione ***`set up destination`***
 7. Em Connections (*menu esquerdo*)
     - Selecione o source `S3`
     - Selecione `Use existing destination` e **Postgres_Stage**
     - Altere `Replication frequency` para `Manual`
     - E o modo de sincronização deve ser `Full refresh overwrite` 
     - Selecione`set up connection`
+8. Salvar o connection_id da connection 
+    - ex: http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status
+    - **connection_id:** `82a3937d-a76d-4ea4-8bb6-45b4491ce4d7`
 
-## Airflow Configurations
-1. Open Airflow
-2. Go to connections
-3. Create the Minio S3 connection with the below configuration:
-*If you test this connection it will fail, just ignore it.*
-    - **Connection Type:** `Amazon Web Services`
-    - **Connection Id:** `aws_default`
-    - **IP interno do container**: 
-        ```
-        docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
-        ```
-    - **Extra:** `{"aws_access_key_id": "minio_admin", "aws_secret_access_key": "minio_password", "endpoint_url": "http://<IP_INTERNO_CONTAINER>:9000"}`
-4. Create the Postgres connection
-    - **Connection Type:** `Postgres`
-    - **Connection Id:** `postgres_default`
-    - **Host:** `postgres_dw`
-    - **Database:** `impacta`
-    - **Login:** `impacta`
+## Configuração do Airflow
+1. Abrir 0 Airflow
+2. Criar a conexão com o Airbyte:
+    - Abrir o Menu: Admin/Connections.
+    - Criar uma nova conexão:
+        - **Connection Id:** `airbyte_default`
+        - **Connection Type:** `HTTP`
+        - **Host:** `<IP Interno do serviço airbyte-server>`
+        - **Login:** `airbyte`
+        - **Password:** `password`
+        - **Port:** `8001`
+        - **Save**
+3. Editar a DAG 2_s3_etl_dbstage, passando o valor do connection_id do Airbyte para o operator AirbyteTriggerSyncOperator
+4. Salvar
+3. Executar DAG 2_s3_etl_dbstage
+
+## Configuração do Airbyte
+1. Abrir o Airbyte
+2. Em Sources (*menu esquerdo*), busque e selecione Postgres. 
+3. Configuração:
+    - **Source name:** `Postgres`
+    - **Host: (IP interno)** `<IP interno>`
+    - **Port:** `5453`
+    - **DB Name:** `dbstage`
+    - **Default Schema**: `bronze silver gold`
+    - **User:** `impacta`
     - **Password:** `impacta`
-    - **Port:** `5432`
-5. Create the Airbyte connection (Optional, in case you want to use the stack for your own development)
-    - **Connection Type:** `Airbyte`
-    - **Connection Id:** `airbyte_default`
-    - **Host:**  `IP interno do serviço airbyte-server`
-        ```
-        docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
-        ```
-    - **Username:** `airbyte`
-    - **Password:** `password`
-    - **Port:** `8001`
+    - Selecione ***`set up destination`***
+5. Em Destinations (*menu esquerdo*), busque e selecione Postgres.
+6. Configuração Postgres Stage:
+    - **Destination name:** `Postgres_Prod`
+    - **Host: (IP interno)** `<IP interno>`
+    - **Port:** `5453`
+    - **DB Name:** `dbprod`
+    - **Default Schema**: `airbytepublic`
+    - **User:** `impacta`
+    - **Password:** `impacta`
+    - Selecione ***`set up destination`***
+7. Em Connections (*menu esquerdo*)
+    - Selecione o source `Postgres`
+    - Selecione `Use existing destination` e **Postgres_Prod**
+    - Altere `Replication frequency` para `Manual`
+    - E o modo de sincronização deve ser `Full refresh overwrite` 
+    - Selecione`set up connection`
+8. Salvar o connection_id da connection 
+    - ex: http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status
+    - **connection_id:** `82a3937d-a76d-4ea4-8bb6-45b4491ce4d7`
 
-## Airbyte Configurations
-1. Open Airbyte, enter an email and select `Get started`
-2. Select sources (*left sidebar*) , in the search bar write `S3` and select it 
-3. Create the S3 connection for customer data
-    - **Source_name:** `S3`
-    - **Output_stream_name:** `dauly_coffeeshop`
-    - **Pattern_of_files_to_replicate:** `coffeeshopsales.csv`
-    - **Bucket:** `landing`
-    - **Aws_access_key_id:** `minio_admin`
-    - **Aws_secret_access_key:** `minio_password`
-    - **Path_prefix:** `customer/`
-    - **Endpoint:** `http://<IP_INTERNO_CONTAINER>:9000`
-    - ***Scroll until the end and select `set up source`***
-5. Select Destinations (*left sidebar*), search for Postgres and select it.
-6. Create the Postgres connection as destination
-    - **Destination_name:** `Postgres_DW`
-    - **Host:** `localhost`
-    - **Port:** `5455`
-    - **Db_name:** `impacta`
-    - **Default_Schema**: `airbyte`
-    - **user:** `impacta`
-    - **password:** `impacta`
-    - ***Scroll until the end and select `set up destination`***
-7. Select Connections (*left sidebar*)
-    - Select the `S3` source
-    - Select `Use existing destination`
-    - In the destination tab select **Postgres_DW** and select `Use existing destination`
-    - In the new screen view, change the `Replication frequency` to `Manual`
-    - Sync mode should be `Full refresh overwrite` 
-    - Select `set up connection`
-
+## Configuração do Airflow
+1. Abrir 0 Airflow
+2. Editar a DAG 3_dbstage_to_dbprod, passando o valor do connection_id do Airbyte para o operator AirbyteTriggerSyncOperator
+3. Salvar
+4. Executar DAG 3_dbstage_to_dbprod
