@@ -1,4 +1,4 @@
-# Pipeline On-premises 
+# Data Integration 
 
 ![alt text](img/dataint.png)
 
