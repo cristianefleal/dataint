@@ -165,7 +165,7 @@
     - E o modo de sincronização deve ser `Full refresh overwrite` 
     - Selecione`set up connection`
 8. Salvar o connection_id da connection 
-    - ex: http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status
+    - ex: `http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status`
     - **connection_id:** `82a3937d-a76d-4ea4-8bb6-45b4491ce4d7`
 
 ## Configuração do Airflow
@@ -213,7 +213,7 @@
     - E o modo de sincronização deve ser `Full refresh overwrite` 
     - Selecione`set up connection`
 8. Salvar o connection_id da connection 
-    - ex: http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status
+    - ex: `http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status`
     - **connection_id:** `82a3937d-a76d-4ea4-8bb6-45b4491ce4d7`
 
 ## Configuração do Airflow
