@@ -1,4 +1,3 @@
-# Data Integration 
 
 ![alt text](img/dataint.png)
 
