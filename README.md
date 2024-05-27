@@ -35,18 +35,18 @@
 ### Postgres Stage
 - **username:** `impacta`
 - **password:** `impacta`
-- **external_host:** `localhost`
-- **external_port:** `5455`
-- **internal_host:** `postgres_stage`
-- **interal_port:** `5432`
+- **host externo:** `localhost`
+- **porta externa:** `5455`
+- **host interno:** `postgres_stage`
+- **porta interna:** `5432`
 
 ### Postgres Prod
 - **username:** `impacta`
 - **password:** `impacta`
-- **external_host:** `localhost`
-- **external_port:** `5454`
-- **internal_host:** `postgres_prod`
-- **interal_port:** `5432`
+- **host externo:** `localhost`
+- **porta: externa** `5454`
+- **host interno:** `postgres_prod`
+- **porta interna:** `5432`
 
 ### Airbyte
  - **url:** `http://localhost:8000`
@@ -59,19 +59,20 @@
 
 ## Resumo
 1. Instalar e subir o Airbyte conforme instruções: `https://docs.airbyte.com/deploying-airbyte/docker-compose`
-2. Clonar o repositório.
+2. Clonar o repositório: `https://github.com/cristianefleal/dataint.git`
 3. Acessar o diretório raiz `dataint\`
 4. Executar `docker compose up -d`. 
 5. Importante: O Airbyte deve ser executado primeiro porque ele cria a rede que será usada pelo Airflow, Postgres e MinIO.
-6. Configurar o MinIO criando os buckets (tmp, lake)
-7. Acessar o Airflow para criar a conexão com o MinIO.
+6. Configurar o **MinIO** criando os buckets (tmp, lake)
+7. Acessar o **Airflow** para criar a conexão com o MinIO.
 8. Executar DAG 1_copy_cvs_to_s3
-9. Acessar o Airbyte para configurar o Souce (S3), Destination (Stage) e Connection.
-10. Acessar o Airflow para criar a conexão com o Airbyte.
-11. Configurar o ID da connection (connection_id) criada no Airbyte na DAG 2_s3_etl_dbstage
+9. Acessar o **Airbyte** para configurar o Souce (S3), Destination (Stage) e Connection.
+10. Acessar o **Airflow** para criar a conexão com o Airbyte.
+11. Configurar o ID da conexão (connection_id) criada no Airbyte na DAG 2_s3_etl_dbstage
 12. Executar DAG 2_s3_etl_dbstage
-13. Acessar o Airbyte para configurar o Souce (Stage), Destination (Prod) e Connection.
-14. Após verificações executar DAG 3_dbstage_to_dbprod
+13. Acessar o **Airbyte** para configurar o Souce (Stage), Destination (Prod) e Connection.
+14. Configurar o ID da conexão (connection_id) criada no Airbyte na DAG 3_dbstage_to_dbprod
+15. Após verificações executar DAG 3_dbstage_to_dbprod
 
 ## Como usar - passo a passo
 
@@ -96,21 +97,22 @@
 ## Criação dos Buckets
 
 1. Acessar o MinIO através da URL: `http://localhost/9000`
-2. Informar as credenciais fornecidas acima
-3. Crie dois buckets de nomes: tmp e lake.
+2. Informar as credenciais:
+    - **Username:** `minio_admin`
+    - **Password:** `minio_password`
+3. Criar dois buckets de nomes: tmp e lake.
 
-## Executar DAG 1_copy_cvs_to_s3
+## Configuração do Airflow
 
-0. Encontrar os IPs internos do serviços s3_minio e postgres_stage 
+0. Encontrar os IPs internos do serviços s3_minio e postgres_stage no terminal:
     - Executar docker ps, identificar o container_id do serviço e depois:
         ```
         docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
         ```
 1. Acessar o Airflow através da URL: `http://localhost:8080/home`
-2. Informar as credenciais fornecidas acima
-
-    - Abrir o terminal para recuperar o IP interno do serviço minio.
-
+2. Informar as credenciais:
+    - **Username:** `airflow`
+    - **Password:** `airflow`    
 3. Criar a conexão com o MinIO:
     - Abrir o Menu: Admin/Connections.
     - Criar uma nova conexão:
@@ -160,7 +162,7 @@
     - **connection_id:** `82a3937d-a76d-4ea4-8bb6-45b4491ce4d7`
 
 ## Configuração do Airflow
-1. Abrir 0 Airflow
+1. Abrir o Airflow
 2. Criar a conexão com o Airbyte:
     - Abrir o Menu: Admin/Connections.
     - Criar uma nova conexão:
@@ -171,7 +173,7 @@
         - **Password:** `password`
         - **Port:** `8001`
         - **Save**
-3. Editar a DAG 2_s3_etl_dbstage, passando o valor do connection_id do Airbyte para o operator AirbyteTriggerSyncOperator
+3. Editar a DAG 2_s3_etl_dbstage, passando o valor do **connection_id** do Airbyte para o operator AirbyteTriggerSyncOperator
 4. Salvar
 3. Executar DAG 2_s3_etl_dbstage
 
@@ -193,7 +195,7 @@
     - **Host: (IP interno)** `<IP interno>`
     - **Port:** `5453`
     - **DB Name:** `dbprod`
-    - **Default Schema**: `airbytepublic`
+    - **Default Schema**: `public`
     - **User:** `impacta`
     - **Password:** `impacta`
     - Selecione ***`set up destination`***
