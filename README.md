@@ -64,14 +64,15 @@
 3. Acessar o diretório raiz `dataint\`
 4. Executar `docker compose up -d`. 
 5. Importante: O Airbyte deve ser executado primeiro porque ele cria a rede que será usada pelo Airflow, Postgres e MinIO.
-5. Configurar o MinIO criando os buckets (tmp, lake)
-6. Acessar o Airflow para criar a conexão com o MinIO.
-7. Executar DAG 1_copy_cvs_to_s3
-8. Acessar o Airbyte para configurar o Souce, Destination e Connection.
-9. Acessar o Airflow para criar a conexão com o Airbyte.
-10. Configurar o ID da connection criada no Airbyte na DAG 2_s3_etl_dbstage
-11. Executar DAG 2_s3_etl_dbstage
-12. Após verificações executar DAG 3_dbstage_to_dbprod
+6. Configurar o MinIO criando os buckets (tmp, lake)
+7. Acessar o Airflow para criar a conexão com o MinIO.
+8. Executar DAG 1_copy_cvs_to_s3
+9. Acessar o Airbyte para configurar o Souce (S3), Destination (Stage) e Connection.
+10. Acessar o Airflow para criar a conexão com o Airbyte.
+11. Configurar o ID da connection (connection_id) criada no Airbyte na DAG 2_s3_etl_dbstage
+12. Executar DAG 2_s3_etl_dbstage
+13. Acessar o Airbyte para configurar o Souce (Stage), Destination (Prod) e Connection.
+14. Após verificações executar DAG 3_dbstage_to_dbprod
 
 ## Como usar - passo a passo
 
@@ -105,12 +106,56 @@
 2. Informar as credenciais fornecidas acima
 3. Criar a conexão com o MinIO:
     - Abrir o terminal para recuperar o IP interno do serviço minio.
-    - Executar docker ps, identificar o container_id do serviço.
-    - Executar docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+    - Executar docker ps, identificar o container_id do serviço e depois:
+        ```
+        docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+        ```
     - Abrir o Menu: Admin/Connections.
     - Criar uma nova conexão:
         - Name:
         - Type:
+4. Executar DAG 1_copy_cvs_to_s3
+
+## Configuração do Airbyte
+1. Acessar o Airbyte através da URL:
+2. Fornecer as credenciais:
+2. Em Sources (*menu esquerdo*), busque e selecione S3. 
+3. Configuração:
+    - **Source_name:** `S3`
+    - **Output_stream_name:** `dauly_coffeeshop`
+    - **Pattern_of_files_to_replicate:** `coffeeshopsales.csv`
+    - **Bucket:** `tmp`
+    - **Aws_access_key_id:** `minio_admin`
+    - **Aws_secret_access_key:** `minio_password`
+    - **Path_prefix:** `customer/`
+    - **Endpoint:** `http://<IP_INTERNO_CONTAINER>:9000`
+    - ***Selecione `set up source`***
+5. Em Destinations (*menu esquerdo*), busque e selecione Postgres.
+6. Configuração Postgres Stage:
+    - **Destination_name:** `Postgres_Stage`
+    - **Host: (IP interno)** `localhost`
+    - **Port:** `5453`
+    - **Db_name:** `impacta`
+    - **Default_Schema**: `airbyte`
+    - **user:** `impacta`
+    - **password:** `impacta`
+    - ***Selecione `set up destination`***
+7. Crie um novo destino e configure o Postgres Prod.
+8. Configuração:
+    - **Destination_name:** `Postgres_Prod`
+    - **Host: (IP interno)** `localhost`
+    - **Port:** `5453`
+    - **Db_name:** `impacta`
+    - **Default_Schema**: `public`
+    - **user:** `impacta`
+    - **password:** `impacta`
+    - ***Selecione `set up destination`***
+7. Em Connections (*menu esquerdo*)
+    - Selecione o source `S3`
+    - Selecione `Use existing destination` e **Postgres_Stage**
+    - Altere `Replication frequency` para `Manual`
+    - E o modo de sincronização deve ser `Full refresh overwrite` 
+    - Selecione`set up connection`
 
 ## Airflow Configurations
 1. Open Airflow
@@ -119,7 +164,10 @@
 *If you test this connection it will fail, just ignore it.*
     - **Connection Type:** `Amazon Web Services`
     - **Connection Id:** `aws_default`
-    - **IP interno do container**: docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+    - **IP interno do container**: 
+        ```
+        docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+        ```
     - **Extra:** `{"aws_access_key_id": "minio_admin", "aws_secret_access_key": "minio_password", "endpoint_url": "http://<IP_INTERNO_CONTAINER>:9000"}`
 4. Create the Postgres connection
     - **Connection Type:** `Postgres`
@@ -132,12 +180,13 @@
 5. Create the Airbyte connection (Optional, in case you want to use the stack for your own development)
     - **Connection Type:** `Airbyte`
     - **Connection Id:** `airbyte_default`
-    - **Host:** docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID> (airbyte-server)
+    - **Host:**  `IP interno do serviço airbyte-server`
+        ```
+        docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+        ```
     - **Username:** `airbyte`
     - **Password:** `password`
     - **Port:** `8001`
-
----
 
 ## Airbyte Configurations
 1. Open Airbyte, enter an email and select `Get started`
