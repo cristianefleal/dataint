@@ -36,7 +36,7 @@
 - **username:** `impacta`
 - **password:** `impacta`
 - **external_host:** `localhost`
-- **external_port:** 5455
+- **external_port:** `5455`
 - **internal_host:** `postgres_stage`
 - **interal_port:** `5432`
 
