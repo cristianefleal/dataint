@@ -68,7 +68,7 @@
     - Executar DAG 1_copy_cvs_to_s3
 9. Acessar o **Airbyte** para configurar o Souce (S3), Destination (Stage) e Connection.
 10. Acessar o **Airflow** para criar a conexão com o Airbyte.
-   -  Configurar o ID da conexão (connection_id) criada no Airbyte na DAG 2_s3_etl_dbstage
+    - Configurar o ID da conexão (connection_id) criada no Airbyte na DAG 2_s3_etl_dbstage
     - Executar DAG 2_s3_etl_dbstage
 13. Acessar o **Airbyte** para configurar o Souce (Stage), Destination (Prod) e Connection.
 14. Acessar o **Airflow** para criar a conexão com o Airbyte.
