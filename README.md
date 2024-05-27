@@ -59,18 +59,17 @@
     ```
 
 ## Resumo
-1. Clonar o repositório.
-2. Navegar até a pasta `data-int\airbyte`
-3. Executar ./run=ab.plataform.sh
-4. Voltar para o diretório do projeto `data-int\`
-5. Executar `docker compose up -d`. A ordem é importante porque o Airbyte cria a rede que será usado pelo airflow, postgres e minio.
-6. Configurar o MinIO criando os buckets (tmp, lake)
-7. Acessar o Airflow para criar a conexão com o MinIO.
-8. Executar DAG 1_copy_cvs_to_s3
-9. Acessar o Airbyte para configurar o souce, destination e connection.
-10. Acessar o Airflow para criar a conexão com o Airbyte.
-11. Configurar o ID da connection criada no Airbyte na DAG 2_s3_etl_dbstage
-12. Executar DAG 2_s3_etl_dbstage
+1. Instalar o Airbyte conforme instruções: https://docs.airbyte.com/deploying-airbyte/docker-compose
+2. Clonar o repositório.
+3. Voltar para o diretório do projeto `data-int\`
+4. Executar `docker compose up -d`. A ordem é importante porque o Airbyte cria a rede que será usado pelo airflow, postgres e minio.
+5. Configurar o MinIO criando os buckets (tmp, lake)
+6. Acessar o Airflow para criar a conexão com o MinIO.
+7. Executar DAG 1_copy_cvs_to_s3
+8. Acessar o Airbyte para configurar o souce, destination e connection.
+9. Acessar o Airflow para criar a conexão com o Airbyte.
+10. Configurar o ID da connection criada no Airbyte na DAG 2_s3_etl_dbstage
+11. Executar DAG 2_s3_etl_dbstage
 
 ## Como usar - passo a passo
 
