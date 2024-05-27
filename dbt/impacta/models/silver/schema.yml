@@ -1,0 +1,20 @@
+version: 2
+
+models:
+  - name: dim_date
+    description: "Dimensão de datas com informações adicionais"
+    columns:
+      - name: full_date
+        description: "Data completa"
+      - name: day_of_week
+        description: "Dia da semana"
+      - name: day
+        description: "Dia do mês"
+      - name: month
+        description: "Mês do ano"
+      - name: year
+        description: "Ano"
+      - name: quarter
+        description: "Trimestre do ano"
+      - name: is_holiday
+        description: "Indica se é feriado"

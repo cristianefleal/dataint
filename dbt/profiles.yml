@@ -1,0 +1,24 @@
+impacta:
+  outputs:
+
+    prod_localhost:
+      type: postgres
+      threads: 4
+      host: localhost
+      port: 5455
+      user: impacta
+      pass: impacta
+      dbname: impacta
+      schema: public
+
+    prod_airflow:
+      type: postgres
+      threads: 4
+      host: postgres_stage
+      port: 5432
+      user: impacta
+      pass: impacta
+      dbname: dbstage
+      schema: public
+
+  target: prod_localhost

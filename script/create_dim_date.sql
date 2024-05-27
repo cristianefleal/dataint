@@ -1,4 +1,5 @@
--- Criação da tabela para a dimensão de data
+
+DROP TABLE IF EXISTS impacta.public.dim_date;
 CREATE TABLE impacta.public.dim_date (
     full_date DATE,
     day_of_week VARCHAR(20),

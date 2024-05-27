@@ -50,7 +50,10 @@ x-airflow-common:
   # Comment the image line, place your Dockerfile in the directory where you placed the docker-compose.yaml
   # and uncomment the "build" line below, Then run `docker-compose build` to build the images.
   # image: ${AIRFLOW_IMAGE_NAME:-apache/airflow:2.8.4}
-  build: .
+  build: ./docker/airflow
+  networks:
+    #- dataint2_default
+    - airbyte_airbyte_internal
   environment:
     &airflow-common-env
     AIRFLOW__CORE__EXECUTOR: CeleryExecutor
@@ -78,6 +81,8 @@ x-airflow-common:
     - ${AIRFLOW_PROJ_DIR:-.}/config:/opt/airflow/config
     - ${AIRFLOW_PROJ_DIR:-.}/plugins:/opt/airflow/plugins
     - ${AIRFLOW_PROJ_DIR:-.}/data:/opt/airflow/data
+    - ${AIRFLOW_PROJ_DIR:-.}/dbt:/opt/airflow/dbt
+    - ${AIRFLOW_PROJ_DIR:-.}/script:/opt/airflow/script
   user: "${AIRFLOW_UID:-50000}:0"
   depends_on:
     &airflow-common-depends-on
@@ -87,15 +92,53 @@ x-airflow-common:
       condition: service_healthy
 
 services:
-  
+
+  ##########################################################
+  ## DBSTAGE E DBPROD
+  ##########################################################
+
+  postgres_stage:
+    build: ./docker/postgres/dbstage
+    networks:
+      - airbyte_airbyte_internal
+    environment:
+      POSTGRES_USER: impacta
+      POSTGRES_PASSWORD: impacta
+      POSTGRES_DB: dbstage
+    volumes:
+      - volume-postgres-stage:/var/lib/postgresql/data
+    ports:
+      - 5455:5432
+    restart: always
+
+  postgres_prod:
+    build: ./docker/postgres/dbprod
+    networks:
+      - airbyte_airbyte_internal
+    environment:
+      POSTGRES_USER: impacta
+      POSTGRES_PASSWORD: impacta
+      POSTGRES_DB: dbprod
+    volumes:
+      - volume-postgres-dw:/var/lib/postgresql/data
+    ports:
+      - 5454:5432
+    restart: always
+
+  ##########################################################
+  ## AIRFLOW
+  ##########################################################
+
   postgres:
     image: postgres:13
+    networks:
+      - airbyte_airbyte_internal
     environment:
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
-      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER:-airflow}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-airflow}
+      POSTGRES_DB: ${POSTGRES_DB:-airflow}
     volumes:
-      - postgres-db-volume:/var/lib/postgresql/data
+      - volume-postgres-airflow:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "airflow"]
       interval: 10s
@@ -105,6 +148,8 @@ services:
 
   redis:
     image: redis:latest
+    networks:
+      - airbyte_airbyte_internal
     expose:
       - 6379
     healthcheck:
@@ -118,6 +163,8 @@ services:
   airflow-webserver:
     <<: *airflow-common
     command: webserver
+    networks:
+      - airbyte_airbyte_internal
     ports:
       - "8080:8080"
     healthcheck:
@@ -135,6 +182,8 @@ services:
   airflow-scheduler:
     <<: *airflow-common
     command: scheduler
+    networks:
+      - airbyte_airbyte_internal
     healthcheck:
       test: ["CMD", "curl", "--fail", "http://localhost:8974/health"]
       interval: 30s
@@ -150,6 +199,8 @@ services:
   airflow-worker:
     <<: *airflow-common
     command: celery worker
+    networks:
+      - airbyte_airbyte_internal
     healthcheck:
       test:
         - "CMD-SHELL"
@@ -172,6 +223,8 @@ services:
   airflow-triggerer:
     <<: *airflow-common
     command: triggerer
+    networks:
+      - airbyte_airbyte_internal
     healthcheck:
       test: ["CMD-SHELL", 'airflow jobs check --job-type TriggererJob --hostname "$${HOSTNAME}"']
       interval: 30s
@@ -187,6 +240,8 @@ services:
   airflow-init:
     <<: *airflow-common
     entrypoint: /bin/bash
+    networks:
+      - airbyte_airbyte_internal
     # yamllint disable rule:line-length
     command:
       - -c
@@ -252,6 +307,8 @@ services:
     <<: *airflow-common
     profiles:
       - debug
+    networks:
+      - airbyte_airbyte_internal
     environment:
       <<: *airflow-common-env
       CONNECTION_CHECK_MAX_COUNT: "0"
@@ -267,6 +324,8 @@ services:
   flower:
     <<: *airflow-common
     command: celery flower
+    networks:
+      - airbyte_airbyte_internal
     profiles:
       - flower
     ports:
@@ -283,23 +342,31 @@ services:
       airflow-init:
         condition: service_completed_successfully
 
-  ###########################################################
+  ##########################################################
   ## MINIO
   ##########################################################
 
   s3_minio:
     image: minio/minio:latest
+    networks:
+      - airbyte_airbyte_internal
     ports:
       - "9000:9000"
       - "9090:9090"
     volumes:
-      - minio_storage:/data
+      - volume-minio:/data
     environment:
-      MINIO_ACCESS_KEY: ${INIO_ACCESS_KEY}
-      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY:-minio_admin}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY:=minio_password}
     command: server /data --console-address ":9090" 
     restart: always
 
 volumes:
-  postgres-db-volume:
-  minio_storage:
+  volume-postgres-dw:
+  volume-minio:
+  volume-postgres-airflow:
+  volume-postgres-stage:
+
+networks:  
+  airbyte_airbyte_internal:
+    external: true

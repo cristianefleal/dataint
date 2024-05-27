@@ -79,7 +79,7 @@ CREATE FILE FORMAT tmp_coffeeshop
     TIMESTAMP_FORMAT=AUTO;
 
 COPY INTO coffeeshop_raw
-FROM (SELECT $1, 
+FROM (SELECT DISTINCT $1, 
              TO_DATE($2,'DD/MM/YYYY'),
              $3,
              $4,
@@ -111,6 +111,46 @@ ON_ERROR=ABORT_STATEMENT;
     )
 
     sql = """
+            CREATE TABLE impacta.public.dim_date (
+    full_date DATE,
+    day_of_week VARCHAR(20),
+    day int,
+    month int,
+    year INT,
+    quarter INT,
+    is_holiday BOOLEAN
+);
+
+SET total_time = (SELECT DATEDIFF(DAY, '2023-01-01', '2024-01-01'));
+
+INSERT INTO impacta.public.dim_date (full_date, day_of_week, day, month, year, quarter, is_holiday)
+WITH dates_cte AS (
+    SELECT DATEADD(DAY, seq8(), TO_DATE('2023-01-01')) AS full_date
+    FROM TABLE(GENERATOR(ROWCOUNT => $total_time))
+)
+SELECT
+    full_date,
+    DAYNAME(full_date) AS day_of_week,
+    DAY(full_date),
+    month(full_date) AS month,
+    YEAR(full_date) AS year,
+    CEIL(TO_NUMBER(TO_CHAR(full_date, 'MM')) / 3) AS quarter,
+    CASE WHEN full_date IN ('2023-01-01', '2023-12-25') THEN TRUE ELSE FALSE END AS is_holiday
+FROM dates_cte;
+
+-- Verificação dos dados inseridos
+SELECT * FROM impacta.public.dim_date ORDER BY full_date LIMIT 100;
+    """
+
+    cria_dim_date = SnowflakeOperator(
+        task_id="cria_dim_date",
+        sql=sql,
+        snowflake_conn_id=minha_conexao,  # Nome da conexão configurada no Airflow para o Snowflake
+        autocommit=True,
+        split_statements=True,
+    )
+
+    sql = """
             CREATE or replace TABLE dim_produto AS SELECT DISTINCT product_id, product_category, product_type, product_detail, size, unit_price FROM coffeeshop_raw;
     """
 
@@ -135,7 +175,7 @@ ON_ERROR=ABORT_STATEMENT;
     )
 
     sql = """
-            CREATE or replace TABLE ft_coffeeshop AS SELECT transaction_id, transaction_date, transaction_time, store_id, product_id, transaction_qty, total_bill  FROM coffeeshop_raw;
+            CREATE or replace TABLE ft_coffeeshop AS SELECT DISTINCT transaction_id, transaction_date, transaction_time, store_id, product_id, transaction_qty, total_bill  FROM coffeeshop_raw;
     """
 
     cria_fato = SnowflakeOperator(
@@ -150,4 +190,4 @@ ON_ERROR=ABORT_STATEMENT;
     end = EmptyOperator(task_id="end")
 
 
-start >> envia_arquivo_para_nuvem >> copy_file >> cria_dim_produto >> cria_dim_store >> cria_fato >> end
+start >> envia_arquivo_para_nuvem >> copy_file >> [cria_dim_date,cria_dim_produto,cria_dim_store] >> cria_fato >> end

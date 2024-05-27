@@ -1,0 +1,7 @@
+version: 2
+sources:
+ - name: dw
+   schema: airbyte
+   tables:
+    - name: airbyte_daily_raw_coffeeshop
+      identifier: raw_coffeeshop
