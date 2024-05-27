@@ -1,13 +1,17 @@
-WITH dim_date AS (
-    SELECT DATEADD(DAY, seq8(), TO_DATE('2023-01-01')) AS full_date
-    FROM TABLE(GENERATOR(ROWCOUNT => SELECT DATEDIFF(DAY, '2023-01-01', '2024-01-01')))
+WITH RECURSIVE dates_cte AS (
+    SELECT '2023-01-01'::DATE AS full_date
+    UNION ALL
+    SELECT (full_date + INTERVAL '1 day')::DATE
+    FROM dates_cte
+    WHERE (full_date + INTERVAL '1 day')::DATE <= '2024-01-01'::DATE
 )
+
 SELECT
     full_date,
-    DAYNAME(full_date) AS day_of_week,
-    DAY(full_date) As day,
-    month(full_date) AS month,
-    YEAR(full_date) AS year,
-    CEIL(TO_NUMBER(TO_CHAR(full_date, 'MM')) / 3) AS quarter,
+    TO_CHAR(full_date, 'Day') AS day_of_week,
+    EXTRACT(DAY FROM full_date) AS day,
+    EXTRACT(MONTH FROM full_date) AS month,
+    EXTRACT(YEAR FROM full_date) AS year,
+    CEIL(EXTRACT(MONTH FROM full_date) / 3.0) AS quarter,
     CASE WHEN full_date IN ('2023-01-01', '2023-12-25') THEN TRUE ELSE FALSE END AS is_holiday
-FROM dim_date
+FROM dates_cte
