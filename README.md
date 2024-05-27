@@ -53,7 +53,7 @@
  - **ip interno:** docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
 
 
-## Instruções Resumo
+## Resumo
 1. Clonar o repositório.
 2. Navegar até a pasta `data-int\airbyte`
 3. Executar ./run=ab.plataform.sh
