@@ -4,9 +4,9 @@
 
 ## Links das aplicações
 
-- **Airbyte:**  - http://localhost:8000/
-- **Airflow:**  - http://localhost:8080/
-- **Minio:**    - http://localhost:9000/
+- **Airbyte:**  - `http://localhost:8000/`
+- **Airflow:**  - `http://localhost:8080/`
+- **Minio:**    - `http://localhost:9000/`
 
 ## Caso de Uso
 
@@ -26,12 +26,12 @@
 ### Minio
 - **access_key:** `minio_admin`
 - **secret_key:** `minio_password`
-- **url:** http://localhost:9000
+- **url:** `http://localhost:9000`
 - **ip interno:** 
     ```
     docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
     ```
-- **porta:** 9000
+- **porta:** `9000`
 
 ### Postgres Stage
 - **username:** `impacta`
@@ -45,7 +45,7 @@
 - **username:** `impacta`
 - **password:** `impacta`
 - **external_host:** `localhost`
-- **external_port:** 5454
+- **external_port:** `5454`
 - **internal_host:** `postgres_prod`
 - **interal_port:** `5432`
 
@@ -59,7 +59,7 @@
     ```
 
 ## Resumo
-1. Instalar e subir o Airbyte conforme instruções: https://docs.airbyte.com/deploying-airbyte/docker-compose
+1. Instalar e subir o Airbyte conforme instruções: `https://docs.airbyte.com/deploying-airbyte/docker-compose`
 2. Clonar o repositório.
 3. Acessar o diretório raiz `dataint\`
 4. Executar `docker compose up -d`. 
@@ -78,7 +78,7 @@
 
 ### Inicializar o Airbyte
 
-1. Conforme instruções em: https://docs.airbyte.com/deploying-airbyte/docker-compose
+1. Conforme instruções em: `https://docs.airbyte.com/deploying-airbyte/docker-compose`
 
 ### Inicializar o Airflow, Postgres e MinIO
 
@@ -96,13 +96,13 @@
 
 ## Criação dos Buckets
 
-1. Acessar o MinIO através da URL: http://localhost/9000
+1. Acessar o MinIO através da URL: `http://localhost/9000`
 2. Informar as credenciais fornecidas acima
 3. Crie dois buckets de nomes: tmp e lake.
 
 ## Executar DAG 1_copy_cvs_to_s3
 
-1. Acessar o Airflow através da URL: http://localhost:8080/home
+1. Acessar o Airflow através da URL: `http://localhost:8080/home`
 2. Informar as credenciais fornecidas acima
 3. Criar a conexão com o MinIO:
     - Abrir o terminal para recuperar o IP interno do serviço minio.
@@ -218,32 +218,4 @@
     - In the new screen view, change the `Replication frequency` to `Manual`
     - Sync mode should be `Full refresh overwrite` 
     - Select `set up connection`
-
----
-
-# Documentação do Projeto
-
-Este repositório contém o projeto da disciplina de Data Integration.
-
-Os seguintes serviços são instalados pelo Docker compose:
-
-- Airflow
-- MinIO
-
-## Pré-requisitos
-
-Antes de começar, certifique-se de ter o Git e o Docker instalados no seu sistema.
-
-- [Git](https://git-scm.com/book/en/v2/Getting-Started-Installing-Git)
-- [Docker](https://docs.docker.com/engine/install/)
-- [Docker Composer](https://docs.docker.com/compose/install/)
-
-Requisitos mínimos de memória
-
-- Memória RAM: 4GB
-- Número de CPUs: 2
-- Espaço em disco: 10 GBs
-
-
-## Como Usar
 
