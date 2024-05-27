@@ -59,10 +59,11 @@
     ```
 
 ## Resumo
-1. Instalar o Airbyte conforme instruções: https://docs.airbyte.com/deploying-airbyte/docker-compose
+1. Instalar e subir o Airbyte conforme instruções: https://docs.airbyte.com/deploying-airbyte/docker-compose
 2. Clonar o repositório.
-3. Voltar para o diretório do projeto `data-int\`
-4. Executar `docker compose up -d`. A ordem é importante porque o Airbyte cria a rede que será usado pelo airflow, postgres e minio.
+3. Acessar o diretório raiz `dataint\`
+4. Executar `docker compose up -d`. 
+5. Importante: O Airbyte deve ser executado primeiro porque ele cria a rede que será usado pelo airflow, Postgres e MinIO.
 5. Configurar o MinIO criando os buckets (tmp, lake)
 6. Acessar o Airflow para criar a conexão com o MinIO.
 7. Executar DAG 1_copy_cvs_to_s3
