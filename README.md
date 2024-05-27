@@ -78,8 +78,8 @@
 11. Acessar o **Airflow**:
     - Configurar o ID da conexão (connection_id) criada no Airbyte na DAG 3_dbstage_to_dbprod
     - Após verificações executar DAG 3_dbstage_to_dbprod
-12. Após todas as configurações, as DAGs 2_s3_etl_dbstage e 3_dbstage_to_dbprod executam todo o processo podendo ser programadas.
-    A DAG 1_copy_cvs_to_s3 é executada somente uma vez para permitir a configuração da conexão no **Airbyte**.
+
+***Obs: Após realizar todas as configurações, as DAGs 2_s3_etl_dbstage e 3_dbstage_to_dbprod executam todo o processo podendo ser programadas. A DAG 1_copy_cvs_to_s3 é executada somente uma vez para permitir a configuração da conexão no **Airbyte**.***
 
 ## Como usar - passo a passo
 
