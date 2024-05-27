@@ -63,18 +63,23 @@
 2. Clonar o repositório.
 3. Acessar o diretório raiz `dataint\`
 4. Executar `docker compose up -d`. 
-5. Importante: O Airbyte deve ser executado primeiro porque ele cria a rede que será usado pelo airflow, Postgres e MinIO.
+5. Importante: O Airbyte deve ser executado primeiro porque ele cria a rede que será usada pelo Airflow, Postgres e MinIO.
 5. Configurar o MinIO criando os buckets (tmp, lake)
 6. Acessar o Airflow para criar a conexão com o MinIO.
 7. Executar DAG 1_copy_cvs_to_s3
-8. Acessar o Airbyte para configurar o souce, destination e connection.
+8. Acessar o Airbyte para configurar o Souce, Destination e Connection.
 9. Acessar o Airflow para criar a conexão com o Airbyte.
 10. Configurar o ID da connection criada no Airbyte na DAG 2_s3_etl_dbstage
 11. Executar DAG 2_s3_etl_dbstage
+12. Após verificações executar DAG 3_dbstage_to_dbprod
 
 ## Como usar - passo a passo
 
-### Inicializar os serviços
+### Inicializar o Airbyte
+
+1. Conforme instruções em: https://docs.airbyte.com/deploying-airbyte/docker-compose
+
+### Inicializar o Airflow, Postgres e MinIO
 
 1. Abra o terminal ou o prompt de comando.
 2. Navegue até o diretório onde deseja clonar o repositório.
@@ -83,15 +88,7 @@
     ```
     git clone https://github.com/cristianefleal/dataint.git
     ```
-4. Navegue até o diretório do Airbyte do projeto após clonar o repositório:
-    ```
-    cd dataint/airbyte
-    ```
-5. Execute o seguinte comando para inicializar os serviços:
-    ```
-    ./run-ab-plataform.sh
-    ```
-6. Volte para o diretório raiz, execute o comando para subir o restantes dos serviços.
+4. Volte para o diretório raiz, execute o comando para subir o restantes dos serviços.
     ```
     docker composer up -d
     ```
