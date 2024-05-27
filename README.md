@@ -152,7 +152,7 @@
 6. Configuração Postgres Stage:
     - **Destination name:** `Postgres_Stage`
     - **Host: (IP interno)** `<IP interno>`
-    - **Port:** `5452`
+    - **Port:** `5453`
     - **DB Name:** `dbstage`
     - **Default Schema**: `airbyte`
     - **User:** `impacta`
