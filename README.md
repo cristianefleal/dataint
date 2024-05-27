@@ -65,12 +65,12 @@
 5. Importante: O Airbyte deve ser executado primeiro porque ele cria a rede que será usada pelo Airflow, Postgres e MinIO.
 6. Configurar o **MinIO** criando os buckets (tmp, lake)
 7. Acessar o **Airflow**:
-    - Criar a conexão com o MinIO.
+    - Criar a conexão com o **MinIO**.
     - Executar DAG 1_copy_cvs_to_s3
 9. Acessar o **Airbyte**:
     - Configurar o Souce (S3), Destination (Stage) e Connection.
-10. Acessar o **Airflow** 
-    - Criar a conexão com o Airbyte.
+10. Acessar o **Airflow**: 
+    - Criar a conexão com o **Airbyte**.
     - Configurar o ID da conexão (connection_id) criada no Airbyte na DAG 2_s3_etl_dbstage
     - Executar DAG 2_s3_etl_dbstage
 13. Acessar o **Airbyte**:
