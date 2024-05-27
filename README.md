@@ -217,7 +217,7 @@
     - **connection_id:** `82a3937d-a76d-4ea4-8bb6-45b4491ce4d7`
 
 ## Configuração do Airflow
-1. Abrir 0 Airflow
+1. Abrir o Airflow
 2. Editar a DAG 3_dbstage_to_dbprod, passando o valor do connection_id do Airbyte para o operator AirbyteTriggerSyncOperator
 3. Salvar
 4. Executar DAG 3_dbstage_to_dbprod
