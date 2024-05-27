@@ -27,7 +27,10 @@
 - **access_key:** `minio_admin`
 - **secret_key:** `minio_password`
 - **url:** http://localhost:9000
-- **iip interno:** docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+- **ip interno:** 
+    ```
+    docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+    ```
 - **porta:** 9000
 
 ### Postgres Stage
@@ -50,8 +53,10 @@
  - **url:** `http://localhost:8000`
  - **user:** `airbyte`
  - **password:** `password`
- - **ip interno:** docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
-
+- **ip interno:** 
+    ```
+    docker inspect -f '{{range.NetworkSettings.Networks}}{{.IPAddress}}{{end}}' <CONTAINER_ID>
+    ```
 
 ## Resumo
 1. Clonar o repositório.
