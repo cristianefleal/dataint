@@ -207,8 +207,12 @@
 7. Em Connections (*menu esquerdo*)
     - Selecione o source `Postgres`
     - Selecione `Use existing destination` e **Postgres_Prod**
+    - Em `Select streams` selecione configuração `Namespaces` 
+    - Em `Destination namespace` selecione `Custom format`: ${DOURCE_NAMESPACE} em seguida `Apply`
+    - Ainda em `Select streams` selecione as tabelas que serão sincronizadas.
+    - Em `Sync mode`altere para `Full refresh overwrite` em seguida `Next`
     - Altere `Replication frequency` para `Manual`
-    - E o modo de sincronização deve ser `Full refresh overwrite` 
+    - Em `Destination Namespace` manter `Custom format` selecionado
     - Selecione`set up connection`
 8. Salvar o connection_id da conexão:
     - ex: `http://localhost:8000/workspaces/12000a99-be37-4b18-8322-5133ef85eb7f/connections/82a3937d-a76d-4ea4-8bb6-45b4491ce4d7/status`
