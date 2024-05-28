@@ -208,7 +208,7 @@
     - Selecione o source `Postgres`
     - Selecione `Use existing destination` e **Postgres_Prod**
     - Em `Select streams` selecione configuração `Namespaces` 
-    - Em `Destination namespace` selecione `Custom format`: ${DOURCE_NAMESPACE} em seguida `Apply`
+    - Em `Destination namespace` selecione `Custom format`: ${SOURCE_NAMESPACE} em seguida `Apply`
     - Ainda em `Select streams` selecione as tabelas que serão sincronizadas.
     - Em `Sync mode`altere para `Full refresh overwrite` em seguida `Next`
     - Altere `Replication frequency` para `Manual`
